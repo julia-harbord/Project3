@@ -1,6 +1,13 @@
 #include <iostream>
 #include<string>
 #include<vector>
+#include <queue>
+#include<chrono>
+
+// Citations:
+// Learned about how to work with c++ Clock system from: https://en.cppreference.com/w/cpp/chrono/system_clock/now
+// Heapify down function from stepik Quiz 6 Solution
+// Comparator class citation: Project 2 Huffman Trees
 
 
 using namespace std;
@@ -30,6 +37,13 @@ public:
         typeOfFood = food;
         rating = rate;
         differenceScore = 0;
+    }
+};
+
+class Compare{ // Comparator class citation: Project 2 Huffman Trees
+public:
+    int operator() (Node node1, Node node2){
+        return node1.differenceScore < node2.differenceScore;
     }
 };
 
@@ -65,70 +79,60 @@ void BubbleSort(vector<Node>& myVec, int size){
     }
 }
 
+void heapify_down(vector<Node>& arr, int size, int root) { // Citation: Quiz 6 Solution - Discussion slides
+    int L = 2*root + 1;
+    int R = 2*root + 2;
 
-void merge(vector<Node>& myVec, int start, int middle, int end){
-    cout<<"CALLING MERGE!";
+    int largestChild = root;
 
-    int sizeLeft = middle - start + 1;
-    int sizeRight = end - middle;
-
-    vector<Node> leftVec;
-    vector<Node> rightVec;
-
-    for(int i = 0; i < sizeLeft; i++){
-        Node& node = myVec.at(start + i);
-        leftVec.at(i) = node;
-
-    }
-    for(int j = 0; j < sizeRight; j++){
-        Node& node = myVec.at(middle + 1 + j);
-        rightVec.at(j) = node;
+    if(L <= size && arr.at(L).differenceScore > arr.at(largestChild).differenceScore){
+        largestChild = L;
     }
 
-    int i = 0;
-    int j = 0;
-    int k = start;
-
-    while(i < sizeLeft && j < sizeRight){
-        if(leftVec.at(i).differenceScore <= rightVec.at(j).differenceScore){
-            myVec.at(k) = leftVec.at(i);
-            i++;
-        }
-        else{
-            myVec.at(k) = rightVec.at(j);
-            j++;
-        }
-        k++;
+    if(R <= size && arr.at(R).differenceScore > arr.at(largestChild).differenceScore){
+        largestChild = R;
     }
 
-    while(i < sizeLeft){
-        myVec.at(k) = leftVec.at(i);
-        i++;
-        k++;
+    if(largestChild != root){
+        Node temp = arr.at(root);
+        arr.at(root) = arr.at(largestChild);
+        arr.at(largestChild) = temp;
+
+        heapify_down(arr,size,largestChild);
     }
 
-    while(j < sizeRight){
-        myVec.at(k) = rightVec.at(j);
-        j++;
-        k++;
-    }
 }
 
-void mergeSort(vector<Node>& myVec, int start, int end){
-    cout<<"CALLING THE SORT!";
+void HeapSort(vector<Node>& myVec){
 
-    if(start < end){
-        int middle = start + (end - 1) / 2;
+    // Build a max heap from the vector in place
+    priority_queue<Node, vector<Node>, Compare> pq;
 
-        mergeSort(myVec,start,middle);
-        mergeSort(myVec,middle + 1,end);
-        merge(myVec,start,middle,end);
+    for(int i = 0; i < myVec.size(); i++){
+        pq.push(myVec.at(i));
     }
+
+    for(int i = 0; i < myVec.size(); i++){
+        myVec.at(i) = pq.top();
+        pq.pop();
+    }
+
+    int last = myVec.size() - 1;
+
+    while(last >= 0){
+        Node temp = myVec.at(last);
+        myVec.at(last) = myVec.at(0);
+        myVec.at(0) = temp;
+
+        last = last - 1;
+        heapify_down(myVec,last,0);
+    }
+
+
 }
 
 
 int main() {
-
     cout<<endl;
 
     cout<< "Hello and Welcome to Food-Lovers Paradise!"<<endl<<endl;
@@ -147,12 +151,12 @@ int main() {
     float userRating;
     cin>>userRating;
 
-
+    // This is where we need to randomize data and add it to the vec<Node>
     Node node1("McDonalds",1,15.35,"American",2.5);
     Node node2("CheeseCake Factory",5,62.59,"American",5.0);
     Node node3("Piesanos",2,55.99,"Italian",4.9);
     Node node4("Flacos",8,25.22,"Mexican",4.2);
-    /*Node node5("ChikFila",2,15.95,"American",4.3);
+    Node node5("ChikFila",2,15.95,"American",4.3);
     Node node6("Sushi-2-go",2,15.20,"Asian",1.1);
     Node node7("DragonFly",6,50.49,"Asian",4.8);
     Node node8("TacoBell",3,14.31,"Mexican",2.2);
@@ -161,21 +165,21 @@ int main() {
     Node node11("SweetBerries",5,21.99,"American",4.5);
     Node node12("ChinaStar",11,23.42,"Asian",3.4);
     Node node13("FiveStar",5,13.28,"Italian",3.3);
-    Node node14("Embers",15,41.20,"Italian",4.9);
+    Node node14("Embers",15,44.20,"Italian",4.9);
     Node node15("FreshKitchen",20,22.21,"American",5.0);
     Node node16("BagelsNoodles",7,19.90,"Asian",3.1);
     Node node17("Chuys",8,33.60,"Mexican",3.7);
     Node node18("Mamas Southern Kitchen",15,36.78,"American",4.2);
     Node node19("SaboraMexico",11,27.80,"Mexican",2.1);
-    Node node20("ElIndio",2,15.75,"Mexican",4.3);*/
+    Node node20("ElIndio",2,15.75,"Mexican",4.3);
 
-
+    // This is where we need to randomize data and add it to the vec<Node>
     vector<Node> vec;
     vec.push_back(node1);
     vec.push_back(node2);
     vec.push_back(node3);
     vec.push_back(node4);
-    /*vec.push_back(node5);
+    vec.push_back(node5);
     vec.push_back(node6);
     vec.push_back(node7);
     vec.push_back(node8);
@@ -190,10 +194,9 @@ int main() {
     vec.push_back(node17);
     vec.push_back(node18);
     vec.push_back(node19);
-    vec.push_back(node20);*/
+    vec.push_back(node20);
 
-
-
+    // This is where we need to randomize data and add it to the vec<Node>
     for(int i = 0; i < vec.size(); i++){
         Node& node = vec.at(i);
 
@@ -202,7 +205,16 @@ int main() {
         }
 
         if(node.price > userPrice){
-            node.differenceScore = node.differenceScore + (node.price - userPrice);
+            node.differenceScore = node.differenceScore + 1.5 * (node.price - userPrice);
+        }
+        else{
+            if(userPrice - node.price >=5.00) {
+                node.differenceScore = node.differenceScore + 0.25 * (userPrice - node.price);
+            }
+            else{
+                node.differenceScore = node.differenceScore + 0.1 * (userPrice - node.price);
+            }
+
         }
 
         if(node.rating < userRating){
@@ -218,7 +230,7 @@ int main() {
     cout<<endl;
 
     cout<<"Which Sorting function would you like to use to sort the data?"<< endl;
-    cout<<"1) Merge"<<endl;
+    cout<<"1) Heap"<<endl;
     cout<<"2) Selection"<<endl;
     cout<<"3) Bubble"<<endl;
     cout<<"Answer: ";
@@ -226,12 +238,14 @@ int main() {
     int choice;
     cin>>choice;
 
-    int size = vec.size();
 
     switch(choice) {
         case 1:
-            cout << "You chose Merge Sort!" << endl;
-            mergeSort(vec,0,size - 1);
+            cout << "You chose Heap Sort!" << endl;
+            HeapSort(vec);
+            /*for(int i = 0; i < vec.size(); i++){
+                cout<<vec.at(i).name<<" "<<vec.at(i).differenceScore<<endl;
+            }*/
             break;
         case 2:
             cout << "You chose Selection Sort!" << endl;
@@ -253,17 +267,42 @@ int main() {
     }
 
     cout<<"Here are the top 10 Restaurants suggested for you!"<<endl;
-    cout<<"1. "<<vec.at(0).name<<endl;
-    cout<<"2. "<<vec.at(1).name<<endl;
-    cout<<"3. "<<vec.at(2).name<<endl;
-    cout<<"4. "<<vec.at(3).name<<endl;
-    /*cout<<"5. "<<vec.at(4).name<<endl;
-    cout<<"6. "<<vec.at(5).name<<endl;
-    cout<<"7. "<<vec.at(6).name<<endl;
-    cout<<"8. "<<vec.at(7).name<<endl;
-    cout<<"9. "<<vec.at(8).name<<endl;
-    cout<<"10. "<<vec.at(9).name<<endl;*/
+    for(int i = 0; i < 10; i++){
+        cout<<i + 1<<". "<<vec.at(i).name<<" SCORE: "<<vec.at(i).differenceScore<<endl;
+    }
 
+    cout<<endl;
+
+    if(choice == 1) {
+
+        auto start1 = std::chrono::system_clock::now();
+        HeapSort(vec);
+        auto end1 = std::chrono::system_clock::now();
+
+        std::chrono::duration<double> diff = end1 - start1;
+
+        cout << "It took " << diff.count() << " seconds to sort data using Heap Sort!" << endl;
+    }
+    else if(choice == 2){
+        auto start3 = std::chrono::system_clock::now();
+        BubbleSort(vec, vec.size());
+        auto end3 = std::chrono::system_clock::now();
+
+        std::chrono::duration<double> diff3 = end3 - start3;
+
+        cout << "It took " << diff3.count() << " seconds to sort data using Selection Sort!" << endl;
+
+    }
+    else if(choice == 3) {
+
+        auto start2 = std::chrono::system_clock::now();
+        BubbleSort(vec, vec.size());
+        auto end2 = std::chrono::system_clock::now();
+
+        std::chrono::duration<double> diff2 = end2 - start2;
+
+        cout << "It took " << diff2.count() << " seconds to sort data using Bubble Sort!" << endl;
+    }
 
 
     return 0;
