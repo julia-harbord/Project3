@@ -3,6 +3,8 @@
 #include<vector>
 #include <queue>
 #include<chrono>
+#include<fstream>
+#include <sstream>
 
 // Citations:
 // Learned about how to work with c++ Clock system from: https://en.cppreference.com/w/cpp/chrono/system_clock/now
@@ -24,7 +26,7 @@ public:
     Node(){
         name = "";
         typeOfFood = "";
-        distanceFromUser = 0;
+        distanceFromUser = 0.0;
         price = 0.0;
         rating = 0.0;
         differenceScore = 0.0;
@@ -133,12 +135,13 @@ void HeapSort(vector<Node>& myVec){
 
 
 int main() {
+
     cout<<endl;
 
     cout<< "Hello and Welcome to Food-Lovers Paradise!"<<endl<<endl;
 
     cout<< "Please enter your favorite type of food: "<<endl<<"American"<<endl<<"Italian"<<endl;
-    cout<<"Asian"<<endl<<"Mexican"<<endl;
+    cout<<"Asian"<<endl<<"Mexican"<<endl<<"Indian"<<endl<<"Seafood"<<endl;
 
     string userFoodType;
     cin>>userFoodType;
@@ -151,58 +154,40 @@ int main() {
     float userRating;
     cin>>userRating;
 
-    // This is where we need to randomize data and add it to the vec<Node>
-    Node node1("McDonalds",1,15.35,"American",2.5);
-    Node node2("CheeseCake Factory",5,62.59,"American",5.0);
-    Node node3("Piesanos",2,55.99,"Italian",4.9);
-    Node node4("Flacos",8,25.22,"Mexican",4.2);
-    Node node5("ChikFila",2,15.95,"American",4.3);
-    Node node6("Sushi-2-go",2,15.20,"Asian",1.1);
-    Node node7("DragonFly",6,50.49,"Asian",4.8);
-    Node node8("TacoBell",3,14.31,"Mexican",2.2);
-    Node node9("TheDiner",10,31.22,"American",4.1);
-    Node node10("ReggaeShack",3,16.76,"Mexican",3.0);
-    Node node11("SweetBerries",5,21.99,"American",4.5);
-    Node node12("ChinaStar",11,23.42,"Asian",3.4);
-    Node node13("FiveStar",5,13.28,"Italian",3.3);
-    Node node14("Embers",15,44.20,"Italian",4.9);
-    Node node15("FreshKitchen",20,22.21,"American",5.0);
-    Node node16("BagelsNoodles",7,19.90,"Asian",3.1);
-    Node node17("Chuys",8,33.60,"Mexican",3.7);
-    Node node18("Mamas Southern Kitchen",15,36.78,"American",4.2);
-    Node node19("SaboraMexico",11,27.80,"Mexican",2.1);
-    Node node20("ElIndio",2,15.75,"Mexican",4.3);
+    ifstream inFS;
+    inFS.open("restaurants.csv");
+    if(!inFS.is_open()){
+        cout<<"Could not open file..."<<endl;
+    }
 
-    // This is where we need to randomize data and add it to the vec<Node>
     vector<Node> vec;
-    vec.push_back(node1);
-    vec.push_back(node2);
-    vec.push_back(node3);
-    vec.push_back(node4);
-    vec.push_back(node5);
-    vec.push_back(node6);
-    vec.push_back(node7);
-    vec.push_back(node8);
-    vec.push_back(node9);
-    vec.push_back(node10);
-    vec.push_back(node11);
-    vec.push_back(node12);
-    vec.push_back(node13);
-    vec.push_back(node14);
-    vec.push_back(node15);
-    vec.push_back(node16);
-    vec.push_back(node17);
-    vec.push_back(node18);
-    vec.push_back(node19);
-    vec.push_back(node20);
 
-    // This is where we need to randomize data and add it to the vec<Node>
-    for(int i = 0; i < vec.size(); i++){
-        Node& node = vec.at(i);
+    while(!inFS.eof()){
+        string str;
+        getline(inFS,str);
+
+        istringstream inSS(str);
+
+        vector<string> allTheStrings;
+        for(int i = 0; i < 5; i++){
+            string temp;
+            getline(inSS,temp,',');
+            allTheStrings.push_back(temp);
+        }
+
+        string restName = allTheStrings.at(0);
+        float restDist = stof(allTheStrings.at(1));
+        float restPrice = stof(allTheStrings.at(2));
+        string restCuisine = allTheStrings.at(3);
+        float restRate = stof(allTheStrings.at(4));
+
+        Node node(restName,restDist,restPrice,restCuisine,restRate);
 
         if(node.typeOfFood != userFoodType){
             node.differenceScore = node.differenceScore + 50;
         }
+
+        node.differenceScore = node.differenceScore + node.distanceFromUser;
 
         if(node.price > userPrice){
             node.differenceScore = node.differenceScore + 1.5 * (node.price - userPrice);
@@ -222,9 +207,11 @@ int main() {
                 node.differenceScore = node.differenceScore + (userRating - node.rating)*(userRating - node.rating);
             }
             else{
-               node.differenceScore = node.differenceScore + (userRating - node.rating);
+                node.differenceScore = node.differenceScore + (userRating - node.rating);
             }
         }
+
+        vec.push_back(node);
     }
 
     cout<<endl;
@@ -241,21 +228,21 @@ int main() {
 
     switch(choice) {
         case 1:
-            cout << "You chose Heap Sort!" << endl;
+            cout << endl << "You chose Heap Sort!" << endl;
             HeapSort(vec);
             /*for(int i = 0; i < vec.size(); i++){
                 cout<<vec.at(i).name<<" "<<vec.at(i).differenceScore<<endl;
             }*/
             break;
         case 2:
-            cout << "You chose Selection Sort!" << endl;
+            cout << endl << "You chose Selection Sort!" << endl;
             SelectionSort(vec,vec.size());
             /*for(int i = 0; i < vec.size(); i++){
                 cout<<vec.at(i).name<<" "<<vec.at(i).differenceScore<<endl;
             }*/
             break;
         case 3:
-            cout<< "You chose Bubble Sort!" << endl;
+            cout<< endl << "You chose Bubble Sort!" << endl;
             BubbleSort(vec,vec.size());
             /*for(int i = 0; i < vec.size(); i++){
                 cout<<vec.at(i).name<<" "<<vec.at(i).differenceScore<<endl;
@@ -266,9 +253,10 @@ int main() {
             break;
     }
 
-    cout<<"Here are the top 10 Restaurants suggested for you!"<<endl;
+    cout<< endl;
+    cout<<"Here are the top 10 Restaurants suggested for you!"<<endl<<endl;
     for(int i = 0; i < 10; i++){
-        cout<<i + 1<<". "<<vec.at(i).name<<" SCORE: "<<vec.at(i).differenceScore<<endl;
+        cout<<i + 1<<". "<<vec.at(i).name<<endl;
     }
 
     cout<<endl;
@@ -285,7 +273,7 @@ int main() {
     }
     else if(choice == 2){
         auto start3 = std::chrono::system_clock::now();
-        BubbleSort(vec, vec.size());
+        SelectionSort(vec, vec.size());
         auto end3 = std::chrono::system_clock::now();
 
         std::chrono::duration<double> diff3 = end3 - start3;
